@@ -19,7 +19,7 @@ namespace GlobalGrub.Controllers
                 categories.Add(new Category() { CategoryId = i, Name = "Category " + i.ToString() });
             }
 
-            // pass the categories list as strongly-typed datat to the view for display
+            // pass the categories list as strongly-typed data to the view for display
             return View(categories);
         }
 
@@ -36,6 +36,12 @@ namespace GlobalGrub.Controllers
             // store the input parameter in a var inside the ViewBag so we can display the user's selection
             ViewBag.category = category;
 
+            return View();
+        }
+
+        // /Categories/Create
+        public IActionResult Create()
+        {
             return View();
         }
     }
