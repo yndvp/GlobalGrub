@@ -8,7 +8,7 @@ namespace GlobalGrub.Models
 {
     public class Category
     {
-        // all primary key fields in ASP.NET MVC should be called either {Model}Id or Id
+        // all pk fields in ASP.NET MVC should be called either {Model}Id or Id
         // property names should always use PascalCase
 
         [Range(1, 999999)]
@@ -17,5 +17,9 @@ namespace GlobalGrub.Models
 
         [Required(AllowEmptyStrings = false, ErrorMessage = "And no darn empty strings!")]
         public string Name { get; set; }
+
+        // child ref
+        public List<Product> Products { get; set; }
+
     }
 }
