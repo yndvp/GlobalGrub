@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GlobalGrub.Data;
 using GlobalGrub.Models;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace GlobalGrub.Controllers
 {
@@ -22,7 +24,7 @@ namespace GlobalGrub.Controllers
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Products.Include(p => p.Category);
+            var applicationDbContext = _context.Products.Include(p => p.Category).OrderBy(p => p.Name);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -57,16 +59,64 @@ namespace GlobalGrub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,Name,Price,Weight,CategoryId,Photo")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductId,Name,Price,Weight,CategoryId")] Product product, IFormFile Photo)
         {
+            // Bind instantiates and populates the properties of a new Product object we want to save
             if (ModelState.IsValid)
             {
+                // check for photo upload and save file if any
+                if(Photo != null)
+                {
+                    var fileName = UploadPhoto(Photo);
+                    /*// get temp location of uploaded photo
+                    var filePath = Path.GetTempFileName();
+
+                    // create a unique name so we don't overwrite any existing photos
+                    // Guid: Globally Unique Identifier - built-in MS class
+                    // eg. photo.jpg => a1b2c3-photo.jpg
+                    var fileName = Guid.NewGuid() + "-" + Photo.FileName;
+
+                    // set destination path dynamically so it works on any system
+                    var uploadPath = System.IO.Directory.GetCurrentDirectory() + "\\wwwroot\\img\\products\\" + fileName;
+
+                    // actually execute the file copy now
+                    using (var stream = new FileStream(uploadPath, FileMode.Create))
+                    {
+                        await Photo.CopyToAsync(stream);
+                    }*/
+
+                    // set the Photo property name of the new Product object
+                    product.Photo = fileName;
+                }
+
                 _context.Add(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             ViewData["CategoryId"] = new SelectList(_context.Categories, "CategoryId", "Name", product.CategoryId);
             return View(product);
+        }
+
+        private static string UploadPhoto(IFormFile Photo)
+        {
+            // get temp location of uploaded photo
+            var filePath = Path.GetTempFileName();
+
+            // create a unique name so we don't overwrite any existing photos
+            // Guid: Globally Unique Identifier - built-in MS class
+            // eg. photo.jpg => a1b2c3-photo.jpg
+            var fileName = Guid.NewGuid() + "-" + Photo.FileName;
+
+            // set destination path dynamically so it works on any system
+            var uploadPath = System.IO.Directory.GetCurrentDirectory() + "\\wwwroot\\img\\products\\" + fileName;
+
+            // actually execute the file copy now
+            using (var stream = new FileStream(uploadPath, FileMode.Create))
+            {
+                Photo.CopyTo(stream);
+            }
+
+            return fileName;
         }
 
         // GET: Products/Edit/5
@@ -91,7 +141,7 @@ namespace GlobalGrub.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,Name,Price,Weight,CategoryId,Photo")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductId,Name,Price,Weight,CategoryId")] Product product, IFormFile Photo)
         {
             if (id != product.ProductId)
             {
@@ -102,6 +152,13 @@ namespace GlobalGrub.Controllers
             {
                 try
                 {
+                    // upload photo if any
+                    if(Photo != null)
+                    {
+                        var fileName = UploadPhoto(Photo);
+                        product.Photo = fileName;
+                    }
+
                     _context.Update(product);
                     await _context.SaveChangesAsync();
                 }
