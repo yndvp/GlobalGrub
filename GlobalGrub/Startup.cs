@@ -47,11 +47,17 @@ namespace GlobalGrub
                 options.ClientId = googleAuth["ClientId"];
                 options.ClientSecret = googleAuth["ClientSecret"];
             });
+
+            // session support
+            services.AddSession();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // session support
+            app.UseSession();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
