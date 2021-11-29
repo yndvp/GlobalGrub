@@ -27,7 +27,7 @@ namespace GlobalGrub.Controllers
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Products.Include(p => p.Category).OrderBy(p => p.Name);
-            return View(await applicationDbContext.ToListAsync());
+            return View("Index", await applicationDbContext.ToListAsync());
         }
 
         // GET: Products/Details/5
@@ -35,7 +35,7 @@ namespace GlobalGrub.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return View("404");
             }
 
             var product = await _context.Products
@@ -43,10 +43,10 @@ namespace GlobalGrub.Controllers
                 .FirstOrDefaultAsync(m => m.ProductId == id);
             if (product == null)
             {
-                return NotFound();
+                return View("404");
             }
 
-            return View(product);
+            return View("Details", product);
         }
 
         // GET: Products/Create
