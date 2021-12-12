@@ -138,5 +138,55 @@ namespace GlobalGrubTests
             // assert
             Assert.AreEqual("Details", result.ViewName);
         }
+
+        [TestMethod]
+        public void DeleteNullIdLoads404()
+        {
+            // act
+            var result = (ViewResult)controller.Delete(null).Result;
+
+            // assert
+            Assert.AreEqual("404", result.ViewName);
+        }
+
+        [TestMethod]
+        public void DeleteInvalidIdLoads404()
+        {
+            // act
+            var result = (ViewResult)controller.Delete(1001).Result;
+
+            // assert
+            Assert.AreEqual("404", result.ViewName);
+        }
+
+        [TestMethod]
+        public void DeleteValidIdLoadsProduct()
+        {
+            // act
+            var result = (ViewResult)controller.Delete(924).Result;
+
+            // assert
+            Assert.AreEqual(products[1], result.Model);
+        }
+
+        [TestMethod]
+        public void DeleteValidIdLoadsView()
+        {
+            // act
+            var result = (ViewResult)controller.Delete(924).Result;
+
+            // assert
+            Assert.AreEqual("Delete", result.ViewName);
+        }
+
+        [TestMethod]
+        public void DeleteConfirmLoadsView()
+        {
+            // act
+            var result = (RedirectToActionResult)controller.DeleteConfirmed(924).Result;
+
+            // assert
+            Assert.AreEqual("Index", result.ActionName);
+        }
     }
 }
